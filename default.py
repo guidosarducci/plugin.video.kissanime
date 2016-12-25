@@ -3783,6 +3783,23 @@ def fav__COMMON__check_SQL(FavUrl,subfav):
 		if len(r) > 0:
 			if r[0]==FavUrl: 
 				iFound=True; #debob(["db result",r]); 
+	elif FavUrl.startswith('https://'):
+		FavUrl=FavUrl.replace('https://','http://')
+		r=get_database_1st_s('SELECT url FROM %s WHERE (url == "%s")' % (FavTable,FavUrl)); 
+		if r:
+			#debob(["db result",r]); 
+			if len(r) > 0:
+				if r[0]==FavUrl: 
+					iFound=True; #debob(["db result",r]); 
+		elif 'kissanime.to/' in FavUrl:
+			FavUrl=FavUrl.replace('kissanime.to/','kissanime.com/')
+			r=get_database_1st_s('SELECT url FROM %s WHERE (url == "%s")' % (FavTable,FavUrl)); 
+			if r:
+				#debob(["db result",r]); 
+				if len(r) > 0:
+					if r[0]==FavUrl: 
+						iFound=True; #debob(["db result",r]); 
+	
 	if iFound==True: return True
 	else: return False
 	## ### ## 
@@ -3931,6 +3948,12 @@ def FavoritesSQL_List(favsN='1'):
 				debob(sDB); 
 				r=get_database_all(sDB); 
 				#debob(["epnameo",epnameo,"showtitle",showtitle]); 
+				DoAFixOrRuni=False
+				if not r:
+					sDB='SELECT %s FROM %s, shows WHERE (%s.url LIKE "%s" and %s.url == shows.url)' % (tab1rows,favsnum,favsnum,_domain_url.replace('https://','http://').replace('.to','.')+"%/%",favsnum)
+					debob(sDB); 
+					r=get_database_all(sDB); 
+					DoAFixOrRuni=True
 				if r:
 					#debob(["db result",r]); 
 					if len(r) > 0:
@@ -3940,7 +3963,29 @@ def FavoritesSQL_List(favsN='1'):
 								pass
 							ItemCount=len(r); i=0; HistoryCountLimit=addst("history101-count"); 
 							for k in r[::-1]:
-								#try:
+								try:
+										#####
+										if DoAFixOrRuni==True:
+											url=k[0]; 
+											sDB=['UPDATE shows SET url = "%s" WHERE (url == "%s")' % (  url.replace('kissanime.com/','kissanime.to/').replace('kissanime.me/','kissanime.to/').replace('http://','https://'),url )]
+											debob(sDB); 
+											do_database(sDB); 
+											sDB=['UPDATE %s SET url = "%s" WHERE (url == "%s")' % (  FavTable,url.replace('kissanime.com/','kissanime.to/').replace('kissanime.me/','kissanime.to/').replace('http://','https://'),url )]
+											debob(sDB); 
+											do_database(sDB); 
+											img=_artIcon; fanart=_artFanart; 
+											try: img=k[6]; fanart=k[7]; 
+											except: pass
+											if (img.startswith('http://')) or ('kissanime.com' in img) or ('kissanime.me' in img):
+												sDB=['UPDATE shows SET img = "%s" WHERE (img == "%s")' % (  img.replace('kissanime.com/','kissanime.to/').replace('kissanime.me/','kissanime.to/').replace('http://','https://'),img )]
+												debob(sDB); 
+												do_database(sDB); 
+											if (fanart.startswith('http://')) or ('kissanime.com' in fanart) or ('kissanime.me' in fanart):
+												sDB=['UPDATE shows SET fanart = "%s" WHERE (fanart == "%s")' % (  fanart.replace('kissanime.com/','kissanime.to/').replace('kissanime.me/','kissanime.to/').replace('http://','https://'),fanart )]
+												debob(sDB); 
+												do_database(sDB); 
+											
+										#####
 										#debob(['k',k[-1],k]); 
 										#debob(['k',k]); 
 										contextMenuItems=[]; pars={}; labs={}; img=_artIcon; fanart=_artFanart; site=addpr('site'); section=addpr('section'); plot=''; pars['mode']='GetEpisodes'; pars['site']=site; pars['section']=section; url=''; title=''; visitedUrl=''; 
@@ -4007,7 +4052,7 @@ def FavoritesSQL_List(favsN='1'):
 											_addon.add_directory(pars,labs,img=img,fanart=fanart,contextmenu_items=contextMenuItems,context_replace=True); i+=1; 
 											if not (HistoryCountLimit=="ALL") and (len(HistoryCountLimit) > 0):
 												if i > (int(HistoryCountLimit)-1): break
-								#except: pass
+								except: pass
 				## ### ## 
 				set_view('tvshows',addst('anime-view'))
 				eod()
@@ -4041,7 +4086,8 @@ def History101(): ## This method uses both the SQL's visited and shows tables.  
 										try: img=k[6]; fanart=k[7]; 
 										except: pass
 										try: 
-											url=k[0]; title=k[1]; visitedUrl=k[10] 
+											url=k[0].replace('kissanime.com/','kissanime.to/').replace('kissanime.me/','kissanime.to/').replace('http://','https://'); 
+											title=k[1]; visitedUrl=k[10] 
 											plot=urllib.unquote_plus(k[9]); 
 										except: pass
 										try: imdb=str(k[9]); 
@@ -4051,11 +4097,13 @@ def History101(): ## This method uses both the SQL's visited and shows tables.  
 												img=_artIcon; 
 											else:
 												if 'kissanime.com/' in img: img=img.replace('kissanime.com/','kissanime.to/')
+												if img.startswith('http://'): img=img.replace('http://','https://')
 												img=net.url_with_headers(img)
 											if len(fanart)==0: 
 												fanart=_artFanart; 
 											else:
 												if 'kissanime.com/' in fanart: fanart=fanart.replace('kissanime.com/','kissanime.to/')
+												if fanart.startswith('http://'): fanart=fanart.replace('http://','https://')
 												fanart=net.url_with_headers(fanart)
 											
 											pars['url']=url; pars['fanart']=fanart; pars['img']=img; labs['plot']=plot; labs['imdb_id']=imdb; fimg=fanart; item_url=url; 
@@ -4120,7 +4168,7 @@ def History101a(): ## This method uses only the SQL's visited table.
 				#do_database(['INSERT OR REPLACE INTO visited (url,title,episode,timestampyear,timestampmonth,timestampday,img,fanart) VALUES ("%s","%s","%s","%s","%s","%s","%s","%s")' % (  url,ShowTitle,epnameo,str(datetime.date.today().year),str(datetime.date.today().month),str(datetime.date.today().day),img,fimg  )])
 				#r=get_database_1st('SELECT * FROM visited WHERE url == "%s"' % url); 
 				#r=get_database_1st('SELECT * FROM visited WHERE (episode == "%s" AND title == "%s")' % (epnameo,showtitle)); 
-				r=get_database_all('SELECT * FROM visited WHERE (episode == "" AND url LIKE "%s")' % (_domain_url+"/%")); 
+				r=get_database_all('SELECT * FROM visited WHERE (episode == "" AND url LIKE "%s")' % ("%://"+_domain_url.replace('http://','').replace('https://','').replace('.to','')+".%/%")); 
 				#debob(["db result",r]); 
 				#debob(["epnameo",epnameo,"showtitle",showtitle]); 
 				if r:
@@ -4135,13 +4183,16 @@ def History101a(): ## This method uses only the SQL's visited table.
 											img=_artIcon; 
 										else:
 											if 'kissanime.com/' in img: img=img.replace('kissanime.com/','kissanime.to/')
+											if img.startswith('http://'): img=img.replace('http://','https://')
 											img=net.url_with_headers(img)
 										if len(fanart)==0: 
 											fanart=_artFanart; 
 										else:
 											if 'kissanime.com/' in fanart: fanart=fanart.replace('kissanime.com/','kissanime.to/')
+											if fanart.startswith('http://'): fanart=fanart.replace('http://','https://')
 											fanart=net.url_with_headers(fanart)										
-										pars['url']=k[0]; pars['mode']='GetEpisodes'; pars['site']=addpr('site'); pars['section']=addpr('section'); pars['fanart']=fanart; pars['img']=img; 
+										pars['url']=k[0].replace('kissanime.com/','kissanime.to/').replace('kissanime.me/','kissanime.to/').replace('http://','https://'); 
+										pars['mode']='GetEpisodes'; pars['site']=addpr('site'); pars['section']=addpr('section'); pars['fanart']=fanart; pars['img']=img; 
 										pars['title']=k[1]; labs['title']=k[1] #pars['title']; 
 										_addon.add_directory(pars,labs,img=img,fanart=fanart,contextmenu_items=contextMenuItems,context_replace=True)
 										if not (HistoryCountLimit=="ALL") and (len(HistoryCountLimit) > 0):
@@ -4185,11 +4236,13 @@ def History201():
 											#img=ArtworkCaching(img)
 											#if i==5: return
 											if 'kissanime.com/' in img: img=img.replace('kissanime.com/','kissanime.to/')
+											if img.startswith('http://'): img=img.replace('http://','https://')
 											img=net.url_with_headers(img)
 										if len(fanart)==0: 
 											fanart=_artFanart; 
 										else:
 											if 'kissanime.com/' in fanart: fanart=fanart.replace('kissanime.com/','kissanime.to/')
+											if fanart.startswith('http://'): fanart=fanart.replace('http://','https://')
 											fanart=net.url_with_headers(fanart) 
 										fimg=fanart; item_url=url; pars['url']=url; pars['imdbnum']=k[5]; pars['imdbid']=k[5]; labs['imdb_id']=k[5]; pars['mode']='GetEpisodes'; pars['site']=addpr('site'); pars['section']=addpr('section'); pars['fanart']=fanart; pars['img']=img; 
 										title=name; pars['title']=name; labs['title']=name; labs['showtitle']=name; labs['plot']=urllib.unquote_plus(k[6]); #pars['title']; 
