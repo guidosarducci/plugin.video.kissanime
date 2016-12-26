@@ -1851,7 +1851,8 @@ def GRABMETA_Y(name,types,year=None):
 
 #def qBaRt(url): nURL(url,headers={'Referer':metamind},proxy=ps('proxy'))
 def qBaRt(url): 
-	if 'kissanime.com/' in url: url=url.replace('kissanime.com/','kissanime.to/')
+	if 'kissanime.com/' in url: url=url.replace('kissanime.com/','kissanime.ru/')
+	if 'kissanime.to/' in url: url=url.replace('kissanime.to/','kissanime.ru/')
 	t=nURL(url)
 	debob(str(len(t))); 
 	if len(t) > 0: 
@@ -2119,7 +2120,7 @@ class MyWindowCountDown(xbmcgui.WindowDialog):
 
 def do_My_Splash(HowLong=10): #HowLong in seconds.
 	maxW=1280; maxH=720; W=maxW/2; H=maxH/2; L=maxW/4; T=maxH/4; 
-	TempWindow2=MyWindowCountDown(bgArt='http://kissanime.to/Content/images/logo.png',L=L,T=T,W=W,H=H); 
+	TempWindow2=MyWindowCountDown(bgArt='http://kissanime.ru/Content/images/logo.png',L=L,T=T,W=W,H=H); 
 	StartTime=time.clock(); 
 	while (time.clock()-StartTime) < HowLong:
 		TempWindow2.show(); 
@@ -2248,7 +2249,8 @@ def ArtworkCaching(iUrl,iPath=addon_profile_path,iData=''):
 				_SaveFileB(iFilenameWP,html_)
 				return iFilenameWP
 			except: pass
-		if 'kissanime.com/' in iUrl2: iUrl2=iUrl2.replace('kissanime.com/','kissanime.to/')
+		if 'kissanime.com/' in iUrl2: iUrl2=iUrl2.replace('kissanime.com/','kissanime.ru/')
+		if 'kissanime.to/' in iUrl2: iUrl2=iUrl2.replace('kissanime.to/','kissanime.ru/')
 		iUrlWithHeaders=xbmc.translatePath(net.url_with_headers(iUrl2))
 		return iUrlWithHeaders
 		
