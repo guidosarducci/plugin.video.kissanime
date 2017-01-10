@@ -3791,8 +3791,9 @@ def fav__COMMON__check_SQL(FavUrl,subfav):
 			if len(r) > 0:
 				if r[0]==FavUrl: 
 					iFound=True; #debob(["db result",r]); 
-		elif 'kissanime.ru/' in FavUrl:
-			FavUrl=FavUrl.replace('kissanime.ru/','kissanime.com/')
+		elif 'kissanime.to/' in FavUrl:
+			FavUrl=FavUrl.replace('kissanime.to/','kissanime.com/')
+#			FavUrl=FavUrl.replace('kissanime.to/','kissanime.ru/')
 			r=get_database_1st_s('SELECT url FROM %s WHERE (url == "%s")' % (FavTable,FavUrl)); 
 			if r:
 				#debob(["db result",r]); 
@@ -3943,14 +3944,14 @@ def FavoritesSQL_List(favsN='1'):
 				WhereAmI('@ SQL Favorites - List - %s%s' % (section,favsN)); 
 				favsnum=FavTable; #favsnum='favs'+favsN; 
 				tab1rows='shows.url,shows.title,shows.year,shows.timestampyear,shows.timestampmonth,shows.timestampday,shows.img,shows.fanart,shows.imdbnum,shows.plot,%s.url' % (favsnum); 
-				#sDB='SELECT %s FROM %s, shows WHERE (%s.url LIKE "%s" and %s.url == shows.url)' % (tab1rows,favsnum,favsnum,_domain_url+"/%",favsnum)
-				sDB='SELECT %s FROM %s, shows WHERE (%s.url LIKE "%s" and %s.url == shows.url)' % (tab1rows,favsnum,favsnum,_domain_url.replace('.to','.')+"%/%",favsnum)
+				sDB='SELECT %s FROM %s, shows WHERE (%s.url LIKE "%s" and %s.url == shows.url)' % (tab1rows,favsnum,favsnum,_domain_url+"/%",favsnum)
+				#sDB='SELECT %s FROM %s, shows WHERE (%s.url LIKE "%s" and %s.url == shows.url)' % (tab1rows,favsnum,favsnum,_domain_url.replace('.ru','.')+"%/%",favsnum)
 				debob(sDB); 
 				r=get_database_all(sDB); 
 				#debob(["epnameo",epnameo,"showtitle",showtitle]); 
 				DoAFixOrRuni=False
 				if not r:
-					sDB='SELECT %s FROM %s, shows WHERE (%s.url LIKE "%s" and %s.url == shows.url)' % (tab1rows,favsnum,favsnum,_domain_url.replace('https://','http://').replace('.to','.')+"%/%",favsnum)
+					sDB='SELECT %s FROM %s, shows WHERE (%s.url LIKE "%s" and %s.url == shows.url)' % (tab1rows,favsnum,favsnum,_domain_url.replace('http://','https://').replace('.ru','.')+"%/%",favsnum)
 					debob(sDB); 
 					r=get_database_all(sDB); 
 					DoAFixOrRuni=True
@@ -3967,21 +3968,21 @@ def FavoritesSQL_List(favsN='1'):
 										#####
 										if DoAFixOrRuni==True:
 											url=k[0]; 
-											sDB=['UPDATE shows SET url = "%s" WHERE (url == "%s")' % (  url.replace('kissanime.com/','kissanime.ru/').replace('kissanime.me/','kissanime.ru/').replace('http://','https://'),url )]
+											sDB=['UPDATE shows SET url = "%s" WHERE (url == "%s")' % (  url.replace('kissanime.com/','kissanime.ru/').replace('kissanime.to/','kissanime.ru/').replace('http://','https://'),url )]
 											debob(sDB); 
 											do_database(sDB); 
-											sDB=['UPDATE %s SET url = "%s" WHERE (url == "%s")' % (  FavTable,url.replace('kissanime.com/','kissanime.ru/').replace('kissanime.me/','kissanime.ru/').replace('http://','https://'),url )]
+											sDB=['UPDATE %s SET url = "%s" WHERE (url == "%s")' % (  FavTable,url.replace('kissanime.com/','kissanime.ru/').replace('kissanime.to/','kissanime.ru/').replace('http://','https://'),url )]
 											debob(sDB); 
 											do_database(sDB); 
 											img=_artIcon; fanart=_artFanart; 
 											try: img=k[6]; fanart=k[7]; 
 											except: pass
-											if (img.startswith('http://')) or ('kissanime.com' in img) or ('kissanime.me' in img):
-												sDB=['UPDATE shows SET img = "%s" WHERE (img == "%s")' % (  img.replace('kissanime.com/','kissanime.ru/').replace('kissanime.me/','kissanime.ru/').replace('http://','https://'),img )]
+											if (img.startswith('http://')) or ('kissanime.com' in img) or ('kissanime.to' in img):
+												sDB=['UPDATE shows SET img = "%s" WHERE (img == "%s")' % (  img.replace('kissanime.com/','kissanime.ru/').replace('kissanime.to/','kissanime.ru/').replace('http://','https://'),img )]
 												debob(sDB); 
 												do_database(sDB); 
-											if (fanart.startswith('http://')) or ('kissanime.com' in fanart) or ('kissanime.me' in fanart):
-												sDB=['UPDATE shows SET fanart = "%s" WHERE (fanart == "%s")' % (  fanart.replace('kissanime.com/','kissanime.ru/').replace('kissanime.me/','kissanime.ru/').replace('http://','https://'),fanart )]
+											if (fanart.startswith('http://')) or ('kissanime.com' in fanart) or ('kissanime.to' in fanart):
+												sDB=['UPDATE shows SET fanart = "%s" WHERE (fanart == "%s")' % (  fanart.replace('kissanime.com/','kissanime.ru/').replace('kissanime.to/','kissanime.ru/').replace('http://','https://'),fanart )]
 												debob(sDB); 
 												do_database(sDB); 
 											
